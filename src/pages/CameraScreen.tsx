@@ -1,7 +1,9 @@
+import { StackScreenProps } from '@react-navigation/stack';
 import React, { useRef } from 'react'
 import { Text, View, StyleSheet, Platform, PermissionsAndroid, Alert, Button } from 'react-native';
-import { Camera, useCameraDevices } from 'react-native-vision-camera';
+import { Camera, sortFormats, useCameraDevices } from 'react-native-vision-camera';
 import { LoadingScreen } from './LoadingScreen';
+import { MediaStackParams } from '../navigator/MediaNavigator';
 
 // const requestSavePermission = async (): Promise<boolean> => {
 //   if (Platform.OS !== 'android') return true;
@@ -16,12 +18,16 @@ import { LoadingScreen } from './LoadingScreen';
 //   return hasPermission;
 // };
 
-export const CameraScreen = () => {
+interface Props extends StackScreenProps<MediaStackParams, 'CameraScreen'>{};
 
-  const devices = useCameraDevices('wide-angle-camera')
+export const CameraScreen = ( { navigation }: Props ) => {
+
+  const devices = useCameraDevices()
   const device = devices.back
 
-  console.log(device)
+  // console.log(`Formatos: ${device?.formats.sort(sortFormats)}`)
+  console.log(`Formatos: ${device?.formats}`)
+  console.log(`FramesProccessors: ${device?.supportsParallelVideoProcessing}`)
 
   const camera = useRef<Camera>(null);
 
@@ -29,9 +35,16 @@ export const CameraScreen = () => {
     try {
       if (camera.current == null) throw new Error('Camera ref is null!');
       
-      const video = camera.current?.startRecording({
+      camera.current.startRecording({
         flash: 'on',
-        onRecordingFinished: (video) => console.log(video),
+        onRecordingFinished: (video) => {
+          console.log(`Path: ${video.path}`)
+          console.log(`Duration: ${video.duration}`)
+          navigation.navigate('MediaScreen',{
+            path: video.path,
+            duration: video.duration
+          })
+        },
         onRecordingError: (error) => console.error(error),
       })
       console.log('Taking photo...');
@@ -40,10 +53,12 @@ export const CameraScreen = () => {
       //   skipMetadata: true,
       // });
       setTimeout(async () => {
-        const video = await camera.current?.stopRecording()
-       }, 5000)
-      console.log('take a photo')
-      console.log(video)
+        camera.current?.stopRecording()
+        // const {path} = await camera.current?.stopRecording()
+        // navigation.navigate('MediaScreen',{})
+       }, 10000)
+      // console.log('take a photo')
+      // console.log(`Video: ${video}`)
       // const hasPermission = await requestSavePermission();
       // if (!hasPermission) {
       //   console.log('Permiso denegado')

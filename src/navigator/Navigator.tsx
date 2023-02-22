@@ -4,6 +4,7 @@ import { PermissionsScreen } from '../pages/PermissionsScreen';
 import { CameraScreen } from '../pages/CameraScreen';
 import { PermissionsContext } from '../context/PermissionsContext';
 import { LoadingScreen } from '../pages/LoadingScreen';
+import { MediaNavigator } from './MediaNavigator';
 
 const Stack = createStackNavigator();
 
@@ -26,7 +27,7 @@ export const Navigator = () => {
     >
       {
         ( permissions.cameraStatus === 'authorized')
-          ? <Stack.Screen name="CameraScreen" component={CameraScreen} />
+          ? <Stack.Screen name="MediaNavigator" component={MediaNavigator} />
           : <Stack.Screen name="PermissionsScreen" component={PermissionsScreen} />
       }
       
